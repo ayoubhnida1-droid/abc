@@ -24,29 +24,17 @@ jobs:
 
       - name: Infinite loop
         run: |
-          echo "Starting infinite loop..."
-
           while true
           do
-            echo "[BOOT] Starting app..."
-            ( npm start &> app.log & )
+            echo ">>> STARTING APP FOR 6 HOURS"
+            npm start &
             PID=$!
-
-            echo "[WAIT] Running for up to 6 hours..."
-            for i in {1..21600}
-            do
-              sleep 1
-              if ! ps -p $PID > /dev/null; then
-                echo "[CRASH] App exited early!"
-                break
-              fi
-            done
-
-            echo "[KILL] Stopping app..."
+            
+            sleep 21600   # 6 hours
+            
+            echo ">>> KILLING APP"
             kill $PID || true
-            sleep 2
-            pkill -9 node || true
-
-            echo "[REST] Waiting 15 minutes..."
-            sleep 900
+            
+            echo ">>> WAITING 15 MINUTES"
+            sleep 900     # 15 min
           done
