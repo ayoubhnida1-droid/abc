@@ -18,23 +18,37 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Infinite loop
         run: |
+          echo "Starting infinite loop..."
+
           while true
           do
-            echo ">>> STARTING APP FOR 6 HOURS"
-            npm start &
+            echo "[BOOT] Starting app..."
+            ( npm start &>app.log & )
             PID=$!
-            
-            sleep 21600   # 6 hours
-            
-            echo ">>> KILLING APP"
+
+            # Wait 6 hours or stop early if crash
+            echo "[WAIT] Running for up to 6 hours..."
+            for i in {1..21600}
+            do
+              sleep 1
+              if ! ps -p $PID > /dev/null; then
+                echo "[CRASH] App died early!"
+                break
+              fi
+            done
+
+            echo "[KILL] Stopping app..."
             kill $PID || true
-            
-            echo ">>> WAITING 15 MINUTES"
-            sleep 900     # 15 min
+            sleep 2
+            pkill -9 node || true
+
+            echo "[REST] Waiting 15 minutes..."
+            sleep 900
           done
