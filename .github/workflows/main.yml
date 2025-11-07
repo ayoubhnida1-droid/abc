@@ -1,40 +1,31 @@
-name: Infinite Node.js Runner
+name: Node.js CI/CD Workflow
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  loop-job:
+  build:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        node-version: [20.x]
+        
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
 
-      - name: Install dependencies
-        run: npm install
+    - name: Install dependencies
+      run: npm install
 
-      - name: Infinite loop
-        run: |
-          while true
-          do
-            echo ">>> STARTING APP FOR 6 HOURS"
-            npm start &
-            PID=$!
-            
-            sleep 21600   # 6 hours
-            
-            echo ">>> KILLING APP"
-            kill $PID || true
-            
-            echo ">>> WAITING 15 MINUTES"
-            sleep 900     # 15 min
-          done
+    - name: Start application
+      run: npm start
