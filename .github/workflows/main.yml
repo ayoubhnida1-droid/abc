@@ -21,7 +21,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Infinite loop
         run: |
@@ -30,16 +30,15 @@ jobs:
           while true
           do
             echo "[BOOT] Starting app..."
-            ( npm start &>app.log & )
+            ( npm start &> app.log & )
             PID=$!
 
-            # Wait 6 hours or stop early if crash
             echo "[WAIT] Running for up to 6 hours..."
             for i in {1..21600}
             do
               sleep 1
               if ! ps -p $PID > /dev/null; then
-                echo "[CRASH] App died early!"
+                echo "[CRASH] App exited early!"
                 break
               fi
             done
