@@ -32,13 +32,6 @@ jobs:
     - name: Start application
       run: npm start
 
-    - name: Wait 5 minutes
-      if: ${{ always() }}
-      run: sleep 300
-
-    - name: Restart workflow
-      if: ${{ always() }}
-      uses: peter-evans/repository-dispatch@v2
-      with:
+    - name: W
         token: ${{ secrets.GITHUB_TOKEN }}
         event-type: restart-app
