@@ -1,23 +1,31 @@
-name: Node.js
+name: Node.js CI/CD Workflow
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  app:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+        
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/cache@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
       with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 20
-        cache: npm
-    - run: npm ci
-    - run: npm start
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Start application
+      run: npm start
