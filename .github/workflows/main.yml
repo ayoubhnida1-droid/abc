@@ -32,17 +32,13 @@ jobs:
     - name: Start application
       run: npm start
 
-    - name: Trigger restart
+    - name: Wait 5 minutes
       if: ${{ always() }}
-      uses: actions/github-script@v6
+      run: sleep 300
+
+    - name: Restart workflow
+      if: ${{ always() }}
+      uses: peter-evans/repository-dispatch@v2
       with:
-        script: |
-          const { execSync } = require("child_process");
-          console.log("Waiting 5 minutes before restart...");
-          execSync("sleep 300");
-          console.log("Re-dispatching restart-app event...");
-          await github.rest.repos.createDispatchEvent({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            event_type: "restart-app",
-          });
+        token: ${{ secrets.GITHUB_TOKEN }}
+        event-type: restart-app
