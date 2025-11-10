@@ -1,22 +1,24 @@
-name: Node.js CI/CD Workflow
+name: Node.js Auto-Restart
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
+  repository_dispatch:
+    types: [restart-app]
 
 jobs:
-  build:
+  run-app:
     runs-on: ubuntu-latest
+    timeout-minutes: 360   # 6 hours
+
     strategy:
       matrix:
         node-version: [20.x]
-        
+
     steps:
-    - name: Checkout repository
+    - name: Checkout
       uses: actions/checkout@v3
 
     - name: Set up Node.js
@@ -29,3 +31,18 @@ jobs:
 
     - name: Start application
       run: npm start
+
+    - name: Trigger restart
+      if: ${{ always() }}
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { execSync } = require("child_process");
+          console.log("Waiting 5 minutes before restart...");
+          execSync("sleep 300");
+          console.log("Re-dispatching restart-app event...");
+          await github.rest.repos.createDispatchEvent({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            event_type: "restart-app",
+          });
