@@ -1,4 +1,4 @@
-name: Node.js CI/CD Workflow
+name: Node.js CI/CD
 
 on:
   push:
@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
 
@@ -19,5 +18,7 @@ jobs:
 
       - run: npm install
 
-      - name: Start application in background
-        run: nohup npm start &
+      - name: Start app and keep runner alive
+        run: |
+          nohup npm start &
+          sleep 21600
