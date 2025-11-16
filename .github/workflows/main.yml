@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 20
 
-      - run: npm install
+      - run: npm ci
 
       - name: Start app and keep runner alive
         run: |
